@@ -71,5 +71,5 @@ npm run dev
 
 <h4 align="center">
   Você pode visualizar a aplicação funcionando através do link: <br>
-  link
+  https://alurakut-five-tan.vercel.app/
 </h4>
