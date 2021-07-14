@@ -1,5 +1,5 @@
 <h1 align="center">
-  [Logo da Alurakut](images/logo-alurakut.svg)
+  [Logo da Alurakut](src/assets/images/logo-alurakut.svg)
 </h1>
 
 <p align="center">
