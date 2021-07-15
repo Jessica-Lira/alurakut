@@ -1,5 +1,5 @@
 <h1 align="center">
-  [Logo da Alurakut](../src/assets/images/logo-alurakut.svg)
+   <img src="./.github/logo-alurakut.svg" alt="Logo da Alurakut" width="250"/>
 </h1>
 
 <p align="center">
