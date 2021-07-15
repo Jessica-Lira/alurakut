@@ -1,7 +1,11 @@
 import React from 'react';
 import MainGrid from '../src/components/MainGrid'
 import Box from '../src/components/Box'
-import { AlurakutMenu, OrkutNostalgicIconSet, AlurakutProfileSidebarMenuDefault } from '../src/lib/AlurakutCommons';
+import { 
+  AlurakutMenu, 
+  OrkutNostalgicIconSet, 
+  AlurakutProfileSidebarMenuDefault 
+} from '../src/lib/AlurakutCommons';
 import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations';
 
 function ProfileSidebar(propriedades) {
@@ -27,17 +31,18 @@ function ProfileRelationsBox(propriedades) {
         {propriedades.title} ({propriedades.items.length})
       </h2>
       <ul>
-        {/* {seguidores.map((itemAtual) => {
+        {properties.items.map((item) => {
           return (
-            <li key={itemAtual}>
-              <a href={`https://github.com/${itemAtual}.png`}>
-                <img src={itemAtual.image} />
-                <span>{itemAtual.title}</span>
+            <li key={item.id}>
+              <a target="_blank" href={`${item.html_url}`} key={item}>
+                <img src={`${item.avatar_url}.png`}></img>
+                <span>{item.login}</span>
               </a>
             </li>
-          )
-        })} */}
+          );
+        })}
       </ul>
+      <button>Mostrar Tudo</button>
     </ProfileRelationsBoxWrapper>
   )
 }
@@ -60,17 +65,31 @@ export default function Home() {
   ]
 
   //seguidores github: box que vai ter um map, baseado nos items do array do GitHub
+  //0 - Pegar o array de dados do github
   const [seguidores, setSeguidores] = React.useState([]);
-  // 0 - Pegar o array de dados do github 
-  React.useEffect(function() {
-    fetch('https://api.github.com/users/peas/followers')
-    .then(function (respostaDoServidor) {
-      return respostaDoServidor.json();
-    })
-    .then(function(respostaCompleta) {
-      setSeguidores(respostaCompleta);
-    })
-  }, [])
+  React.useEffect(async function () {
+    // fetch("https://api.github.com/users/Jessica-Lira/followers")
+    //   .then((respostaDoServidor) => {
+    //     return respostaDoServidor.json();
+    //   })
+    //   .then((respostaCompleta) => {
+    //     console.log(respostaCompleta);
+    //     setSeguidores(respostaCompleta);
+    //     return respostaCompleta;
+    //   })
+    //   .catch(function (e) {
+    //     console.error(e);
+    //   });
+
+    let response = await fetch(
+      "https://api.github.com/users/Jessica-Lira/followers"
+    );
+    let userData = await response.json();
+    setSeguidores(userData);
+    return userData;
+  }, []);
+
+  //box que vai ter map baseado nos item do array do github
 
   return (
     <>
