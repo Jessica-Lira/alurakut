@@ -31,18 +31,17 @@ function ProfileRelationsBox(propriedades) {
         {propriedades.title} ({propriedades.items.length})
       </h2>
       <ul>
-        {properties.items.map((item) => {
+        {propriedades.items.slice(0,6).map((itemAtual) => {
           return (
-            <li key={item.id}>
-              <a target="_blank" href={`${item.html_url}`} key={item}>
-                <img src={`${item.avatar_url}.png`}></img>
-                <span>{item.login}</span>
+            <li key={itemAtual.id}>
+              <a href={itemAtual.html_url} target="_blank" rel="noopener noreferrer">
+                <img src={itemAtual.avatar_url} />
+                <span>{itemAtual.login}</span>
               </a>
             </li>
-          );
+          ); 
         })}
       </ul>
-      <button>Mostrar Tudo</button>
     </ProfileRelationsBoxWrapper>
   )
 }
@@ -148,7 +147,9 @@ export default function Home() {
 
         </div>
         <div className="profileRelationsArea" style={{ gridArea: 'profileRelationsArea' }}>
+
           <ProfileRelationsBox title="Seguidores" items={seguidores} />
+
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">
               Amigos ({pessoasFavoritas.length})
