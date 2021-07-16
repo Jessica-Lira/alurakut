@@ -1,4 +1,6 @@
 import React from 'react';
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken';
 import MainGrid from '../src/components/MainGrid'
 import Box from '../src/components/Box'
 import { 
@@ -46,16 +48,16 @@ function ProfileRelationsBox(propriedades) {
   )
 }
 
-export default function Home() {
-  const usuarioAleatorio = 'Jessica-Lira';
+export default function Home(props) {
+  const usuarioAleatorio = props.githubUser;
 
   const [comunidades, setComunidades] = React.useState([
-    {
-    id: '38785230525028667', 
-    title: 'Eu odeio acordar cedo',
-    image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
-    },
-]);
+    //{
+    //id: '38785230525028667', 
+    //title: 'Eu odeio acordar cedo',
+    //image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
+    //},
+  ]);
 
   const pessoasFavoritas = [
     'juunegreiros',
@@ -63,32 +65,58 @@ export default function Home() {
     'peas',
   ]
 
-  //seguidores github: box que vai ter um map, baseado nos items do array do GitHub
-  //0 - Pegar o array de dados do github
+  //Pega o array de dados do github
   const [seguidores, setSeguidores] = React.useState([]);
   React.useEffect(async function () {
-    // fetch("https://api.github.com/users/Jessica-Lira/followers")
-    //   .then((respostaDoServidor) => {
-    //     return respostaDoServidor.json();
-    //   })
-    //   .then((respostaCompleta) => {
-    //     console.log(respostaCompleta);
-    //     setSeguidores(respostaCompleta);
-    //     return respostaCompleta;
-    //   })
-    //   .catch(function (e) {
-    //     console.error(e);
-    //   });
+     fetch("https://api.github.com/users/Jessica-Lira/followers")
+       .then((respostaDoServidor) => {
+         return respostaDoServidor.json();
+       })
+       .then((respostaCompleta) => {
+         console.log(respostaCompleta);
+         setSeguidores(respostaCompleta);
+         return respostaCompleta;
+       })
+       .catch(function (e) {
+         console.error(e);
+       });
 
-    let response = await fetch(
-      "https://api.github.com/users/Jessica-Lira/followers"
-    );
-    let userData = await response.json();
-    setSeguidores(userData);
-    return userData;
+    //let response = await fetch(
+    //  "https://api.github.com/users/Jessica-Lira/followers"
+    //);
+    //let userData = await response.json();
+    //setSeguidores(userData);
+    //return userData;
+
+    // API GraphQL
+    fetch('https://graphql.datocms.com/', {
+    method: 'POST',
+    headers: {
+      //chave da api token
+      'Authorization': 'cc1daaba3f28a069174d1956082251',
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify({ "query": `query {
+      allCommunities {
+        id 
+        title
+        imageUrl
+        creatorSlug
+      }
+    }` })
+  })
+  .then((response) => response.json()) // Pega o retorno do response.json() e retorna
+  .then((respostaCompleta) => {
+    const comunidadesVindasDoDato = respostaCompleta.data.allCommunities;
+    console.log(comunidadesVindasDoDato)
+    setComunidades(comunidadesVindasDoDato)
+  })
+  // .then(function (response) {
+  //   return response.json()
+  // })
+
   }, []);
-
-  //box que vai ter map baseado nos item do array do github
 
   return (
     <>
@@ -116,10 +144,27 @@ export default function Home() {
                 console.log('Campo: ', dadosDoForm.get('image'));
 
                 const comunidade = {
-                  id: new Date().toISOString(),
+                  //id: new Date().toISOString(),
                   title: dadosDoForm.get('title'),
                   image: dadosDoForm.get('image'),
+                  creatorSlug: usuarioAleatorio,
                 }
+
+                fetch('/api/comunidades', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(comunidade)
+                })
+                .then(async (response) => {
+                  const dados = await response.json();
+                  console.log(dados.registroCriado);
+                  const comunidade = dados.registroCriado;
+                  const comunidadesAtualizadas = [...comunidades, comunidade];
+                  setComunidades(comunidadesAtualizadas)
+                })
+
                 const comunidadesAtualizadas = [...comunidades, comunidade];
                 setComunidades(comunidadesAtualizadas)
             }}>
@@ -177,7 +222,7 @@ export default function Home() {
                 return (
                   <li key={itemAtual.id}>
                     <a href={`/users/${itemAtual.title}`}>
-                      <img src={itemAtual.image} />
+                      <img src={itemAtual.imageURL} />
                       <span>{itemAtual.title}</span>
                     </a>
                   </li>
@@ -189,4 +234,34 @@ export default function Home() {
       </MainGrid>
     </>
   )
+}
+
+export async function getServerSideProps(ctx) {
+  const cookies = nookies.get(ctx);
+  const token = cookies.USER_TOKEN;
+  const decodedToken = jwt.decode(token);
+  const githubUser = decodedToken?.githubUser;
+
+  if (!githubUser) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    }
+  }
+
+  // const followers = await fetch(`https://api.github.com/users/${githubUser}/followers`)
+  //   .then((res) => res.json())
+  //   .then(followers => followers.map((follower) => ({
+  //     id: follower.id,
+  //     name: follower.login,
+  //     image: follower.avatar_url,
+  //   })));
+
+  return {
+    props: {
+      githubUser,
+    }
+  }
 }
