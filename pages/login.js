@@ -4,7 +4,7 @@ import nookies from 'nookies';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [githubUser, setGithubUser] = React.useState('');
+  const [githubUser, setGithubUser] = React.useState('Jessica-Lira');
 
   return (
     <main style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
